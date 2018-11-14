@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBuildGravitasTable", "AddBuildGravitasTable\AddBuildGravitasTable.csproj", "{BC4407F6-C4EF-4338-82F3-F1534B965FB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBuildSetpieceLight", "AddBuildSetpieceLight\AddBuildSetpieceLight.csproj", "{EBF72B43-A315-4DF8-9323-062771A8623D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BC4407F6-C4EF-4338-82F3-F1534B965FB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC4407F6-C4EF-4338-82F3-F1534B965FB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC4407F6-C4EF-4338-82F3-F1534B965FB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBF72B43-A315-4DF8-9323-062771A8623D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBF72B43-A315-4DF8-9323-062771A8623D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBF72B43-A315-4DF8-9323-062771A8623D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBF72B43-A315-4DF8-9323-062771A8623D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
