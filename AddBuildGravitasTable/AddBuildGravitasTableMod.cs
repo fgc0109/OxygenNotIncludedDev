@@ -17,9 +17,9 @@ namespace OxygenNotIncludedModDev
         {
             Debug.Log(" === GeneratedBuildings.LoadGeneratedBuildings Prefix === " + AddBuildGravitasTable.ID);
 
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.NAME", "AETN");
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.DESC", "");
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.EFFECT", "");
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.NAME", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"DiningTable".ToUpper()}.NAME") + "II");
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.DESC", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"DiningTable".ToUpper()}.DESC"));
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildGravitasTable).ToUpper()}.EFFECT", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"DiningTable".ToUpper()}.EFFECT"));
 
             List<string> category = (List<string>)TUNING.BUILDINGS.PLANORDER.First(plan => plan.category == PlanScreen.PlanCategory.Furniture).data;
             category.Add(AddBuildGravitasTable.ID);

@@ -17,9 +17,9 @@ namespace OxygenNotIncludedModDev
         {
             Debug.Log(" === GeneratedBuildings.LoadGeneratedBuildings Prefix === " + AddBuildSetpieceLight.ID);
 
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.NAME", "AETN");
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.DESC", "");
-            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.EFFECT", "");
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.NAME", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"CeilingLight".ToUpper()}.NAME") + "II");
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.DESC", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"CeilingLight".ToUpper()}.DESC"));
+            Strings.Add($"STRINGS.BUILDINGS.PREFABS.{nameof(AddBuildSetpieceLight).ToUpper()}.EFFECT", Strings.Get($"STRINGS.BUILDINGS.PREFABS.{"CeilingLight".ToUpper()}.EFFECT"));
 
             List<string> category = (List<string>)TUNING.BUILDINGS.PLANORDER.First(plan => plan.category == PlanScreen.PlanCategory.Furniture).data;
             category.Add(AddBuildSetpieceLight.ID);
