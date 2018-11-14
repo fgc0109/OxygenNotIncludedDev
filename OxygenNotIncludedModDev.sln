@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBuildGravitasTable", "Ad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBuildSetpieceLight", "AddBuildSetpieceLight\AddBuildSetpieceLight.csproj", "{EBF72B43-A315-4DF8-9323-062771A8623D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBuildSaltLamp", "AddBuildSaltLamp\AddBuildSaltLamp.csproj", "{CC88E176-EF41-41B9-92EF-A6C63A01B2EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EBF72B43-A315-4DF8-9323-062771A8623D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBF72B43-A315-4DF8-9323-062771A8623D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBF72B43-A315-4DF8-9323-062771A8623D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC88E176-EF41-41B9-92EF-A6C63A01B2EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88E176-EF41-41B9-92EF-A6C63A01B2EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC88E176-EF41-41B9-92EF-A6C63A01B2EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC88E176-EF41-41B9-92EF-A6C63A01B2EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
