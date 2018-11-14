@@ -44,8 +44,8 @@ namespace OxygenNotIncludedModDev
         {
             Debug.Log(" === Db.Initialize loaded === " + AddBuildSaltLamp.ID);
 
-            List<string> tech = new List<string>(Database.Techs.TECH_GROUPING["FineDining"]) { AddBuildSaltLamp.ID };
-            Database.Techs.TECH_GROUPING["FineDining"] = tech.ToArray();
+            List<string> tech = new List<string>(Database.Techs.TECH_GROUPING["InteriorDecor"]) { AddBuildSaltLamp.ID };
+            Database.Techs.TECH_GROUPING["InteriorDecor"] = tech.ToArray();
         }
     }
 }
