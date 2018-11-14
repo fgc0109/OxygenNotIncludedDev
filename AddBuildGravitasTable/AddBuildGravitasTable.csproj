@@ -62,4 +62,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetDir)$(TargetFileName)" "E:\SteamLibrary\steamapps\common\OxygenNotIncluded\Mods" /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
