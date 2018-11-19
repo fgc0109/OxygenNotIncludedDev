@@ -418,12 +418,6 @@ namespace AnimationLibrary
             int idanim = 0;
             foreach (var anim in AnimData.animList)
             {
-                //if (idanim != 4)
-                //{
-                //    idanim++;
-                //    continue;
-                //}
-
                 int idframe = 0;
                 Dictionary<string, int> timelines = new Dictionary<string, int>(); //每个动画建立一组时间线
                 foreach (var frame in anim.framesList)
@@ -477,12 +471,10 @@ namespace AnimationLibrary
                                         break;
                                     }
                                 }
-
                             }
                             else
                             {
                                 timelines[timeline]++;
-
                             }
                         }
 
@@ -508,12 +500,6 @@ namespace AnimationLibrary
                            );
                     }
                     idframe++;
-                }
-
-                if (true)
-                {
-                    //Math.Max()
-                    //timelines.Count
                 }
                 idanim++;
             }
