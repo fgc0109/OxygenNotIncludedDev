@@ -9,15 +9,15 @@ namespace AnimationLibrary
 {
     public class AnimationConfigExporter
     {
-        XmlDocument scml = null;
+        private static XmlDocument scml = null;
         DataSet dataSet = null;
-        DataTable bildTable = null;
-        DataTable animTable = null;
-        AnimationBundleReader bundleData = null;
-        Dictionary<string, string> fileNameIndex = null;
+        private static DataTable bildTable = null;
+        private static DataTable animTable = null;
+        private static AnimationBundleReader bundleData = null;
+        private static Dictionary<string, string> fileNameIndex = null;
 
-        public string FilePath { get; private set; }
-        public string FileName { get; private set; }
+        public static string FilePath { get; private set; }
+        public static string FileName { get; private set; }
 
         public void InitData(DataSet data, AnimationBundleReader bundle, string path, string name)
         {
@@ -86,7 +86,7 @@ namespace AnimationLibrary
             }
         }
 
-        public void InitEntityInfo()
+        private static void InitEntityInfo()
         {
             XmlNode root = scml.SelectSingleNode("spriter_data");
 
@@ -96,42 +96,54 @@ namespace AnimationLibrary
             root.AppendChild(entity);
         }
 
-        public void InitAnimationInfo()
+        private static void InitAnimationInfo()
         {
             XmlNode root = scml.SelectSingleNode("spriter_data/entity");
 
-            for (int bank = 0; bank < bundleData.AnimData.symbols; bank++)
+            for (int animIndex = 0; animIndex < bundleData.AnimData.anims; animIndex++)
             {
+                var anim = bundleData.AnimData.animList[animIndex];
+
                 XmlElement animation = scml.CreateElement("animation");
-                animation.SetAttribute("id", bank.ToString());
-                animation.SetAttribute("name", bundleData.AnimData.symbolsList[bank].name);
-                animation.SetAttribute("length", bundleData.AnimData.symbolsList[bank].frames.ToString());
+                animation.SetAttribute("id", animIndex.ToString());
+                animation.SetAttribute("name", anim.name);
+                animation.SetAttribute("length", (anim.rate * anim.frames).ToString());
                 root.AppendChild(animation);
 
-                InitMainlineInfo(animation, bank);
-                InitTimelineInfo(animation, bank);
+                InitMainlineInfo(animation, animIndex);
+                InitTimelineInfo(animation, animIndex);
             }
 
             scml.Save(FilePath + "\\_" + FileName + ".scml");
         }
 
-        public void InitMainlineInfo(XmlNode parent, int symbolIndex)
+        private static void InitMainlineInfo(XmlNode parent, int animIndex)
         {
             XmlElement mainline = scml.CreateElement("mainline");
             parent.AppendChild(mainline);
 
-            for (int frame = 0; frame < bundleData.AnimData.symbolsList[symbolIndex].frames; frame++)
+            var anim = bundleData.AnimData.animList[animIndex];
+            float rate = anim.rate;
+            for (int frame = 0; frame < anim.frames; frame++)
             {
                 XmlElement key = scml.CreateElement("key");
                 key.SetAttribute("id", frame.ToString());
-                key.SetAttribute("time", frame.ToString());
-                for (int element = 0; element < bundleData.AnimData.symbolsList[symbolIndex].framesList[frame].elements; element++)
+                key.SetAttribute("time", (frame * rate).ToString());
+                for (int element = 0; element < anim.framesList[frame].elements; element++)
                 {
+                    var dataline = animTable.Select(
+                        "idanim = '" + animIndex + "' and " +
+                        "idframe = '" + frame + "' and " +
+                        "idelement = '" + element + "'")[0];
+                    int timeline = (int)dataline["timeline"];
+                    int line_key = (int)dataline["line_key"];
+
+
                     XmlElement object_ref = scml.CreateElement("object_ref");
                     object_ref.SetAttribute("id", element.ToString());
-                    object_ref.SetAttribute("timeline", element.ToString());
-                    object_ref.SetAttribute("key", "0");
-                    object_ref.SetAttribute("z_index", (bundleData.AnimData.symbolsList[symbolIndex].framesList[frame].elements - element).ToString());
+                    object_ref.SetAttribute("timeline", timeline.ToString());
+                    object_ref.SetAttribute("key", line_key.ToString());
+                    object_ref.SetAttribute("z_index", (anim.framesList[frame].elements - element).ToString());
 
                     key.AppendChild(object_ref);
                 }
@@ -140,28 +152,62 @@ namespace AnimationLibrary
             }
         }
 
-        public void InitTimelineInfo(XmlNode parent, int symbolIndex)
+        private static void InitTimelineInfo(XmlNode parent, int animIndex)
         {
-            var frameTemp = bundleData.AnimData.symbolsList[symbolIndex].framesList[0];
-            for (int element = 0; element < frameTemp.elements; element++)
+            var anim = bundleData.AnimData.animList[animIndex];
+            var frameTemp = anim.framesList[0];
+
+            Dictionary<string, AnimElement> timelines = new Dictionary<string, AnimElement>();
+            foreach (var frame in anim.framesList)
             {
-                string file = bundleData.AnimHash[frameTemp.elementsList[element].symbol] + "_" + frameTemp.elementsList[element].frame;
+                foreach (var element in frame.elementsList)
+                {
+                    string temp = element.image + "_" + element.index + "_" + element.layer;
+                    if (!timelines.ContainsKey(temp))
+                    {
+                        timelines.Add(temp, element);
+                    }
+                }
+            }
+
+            List<string> timelinesKeys = new List<string>();
+            foreach (var item in timelines.Keys)
+            {
+                timelinesKeys.Add(item);
+            }
+
+            //查找动画每个时间线的数据(一个物体一条时间线)
+            for (int line = 0; line < timelines.Count; line++)
+            {
+
+                string keyd = timelinesKeys[line];
+                string file = bundleData.AnimHash[timelines[keyd].image] + "_" + timelines[keyd].index;
 
                 XmlElement timeline = scml.CreateElement("timeline");
-                timeline.SetAttribute("id", element.ToString());
-                timeline.SetAttribute("name", element + "_" + file);
+                timeline.SetAttribute("id", line.ToString());
+                timeline.SetAttribute("name", line + "_" + file);
 
                 bool isFirst = true;
                 double lastangle = 0;
 
+                float rate = anim.rate;
                 int current = 0;
-                for (int frame = 0; frame < bundleData.AnimData.symbolsList[symbolIndex].frames; frame++)
+                bool insertline = false;
+
+                //从每一帧查找看有没有这个物体,有的话在时间线里面加入这个物体的数据
+                for (int frame = 0; frame < anim.frames; frame++)
                 {
                     if (!fileNameIndex.ContainsKey(file)) { continue; }
-                    if (bundleData.AnimData.symbolsList[symbolIndex].framesList[frame].elements == 0) { continue; }
+                    if (anim.framesList[frame].elements == 0) { continue; }
 
-                    //查找每一帧对比一下 是当前的物体则导出数据
-                    var obj = bundleData.AnimData.symbolsList[symbolIndex].framesList[frame].elementsList[element];
+                    var obj = anim.framesList[frame].elementsList.FirstOrDefault(ele =>
+                        ele.layer == timelines[timelinesKeys[line]].layer &&
+                        ele.index == timelines[timelinesKeys[line]].index &&
+                        ele.image == timelines[timelinesKeys[line]].image
+                        );
+                    if (obj.image == 0) { continue; }
+
+                    insertline = true;
 
                     double scale_x = Math.Sqrt(obj.m1 * obj.m1 + obj.m2 * obj.m2);
                     double scale_y = Math.Sqrt(obj.m3 * obj.m3 + obj.m4 * obj.m4);
@@ -169,31 +215,33 @@ namespace AnimationLibrary
                     double det = obj.m1 * obj.m4 - obj.m3 * obj.m2;
                     if (det < 0)
                     {
-                        if (isFirst)
-                        {
-                            scale_x = -scale_x;
-                            isFirst = false;
-                        }
-                        else
-                        {
-                            scale_y = -scale_y;
-                        }
+                        if (isFirst) { scale_x = -scale_x; isFirst = false; }
+                        else { scale_y = -scale_y; }
                     }
 
                     double sin_approx = 0.5 * (obj.m3 / scale_y - obj.m2 / scale_x);
                     double cos_approx = 0.5 * (obj.m1 / scale_x + obj.m4 / scale_y);
                     double angle = Math.Atan2(sin_approx, cos_approx);
 
-                    double spin = (angle - lastangle) <= Math.PI ? 1 : -1;
+                    double spin = Math.Abs(angle - lastangle) <= Math.PI ? 1 : -1;
                     if (angle < lastangle) { spin = -spin; }
 
                     if (angle < 0) { angle += 2 * Math.PI; }
                     angle *= 180 / Math.PI;
                     lastangle = angle;
 
+                    var dataline = animTable.Select(
+                       "idanim = '" + animIndex + "' and " +
+                       "idframe = '" + frame + "' and " +
+                       "image = '" + obj.image + "' and " +
+                       "index = '" + obj.index + "' and " +
+                       "layer = '" + obj.layer + "'")[0];
+                    int line_key = (int)dataline["line_key"];
+                    int time = (int)dataline["idframe"] * (int)rate;
+
                     XmlElement key = scml.CreateElement("key");
-                    key.SetAttribute("id", frame.ToString());
-                    key.SetAttribute("time", frame.ToString());
+                    key.SetAttribute("id", line_key.ToString());
+                    key.SetAttribute("time", time.ToString());
                     key.SetAttribute("spin", spin.ToString());
 
                     XmlElement object_def = scml.CreateElement("object");
@@ -212,7 +260,7 @@ namespace AnimationLibrary
                     current++;
                 }
 
-                parent.AppendChild(timeline);
+                if (insertline) { parent.AppendChild(timeline); }
             }
         }
     }

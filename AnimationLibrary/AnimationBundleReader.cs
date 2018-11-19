@@ -52,19 +52,19 @@ namespace AnimationLibrary
 
     #endregion
 
-    #region ============================== BILD STRUCT ==============================
+    #region ============================== ANIM STRUCT ==============================
 
     public struct Anim
     {
         public int version;
-        public int space1;
-        public int space2;
-        public int symbols;
+        public int elements;
+        public int frames;
+        public int anims;
 
-        public List<AnimSymbol> symbolsList;
+        public List<AnimBank> animList;
     }
 
-    public struct AnimSymbol
+    public struct AnimBank
     {
         public string name;
         public int hash;
@@ -89,9 +89,9 @@ namespace AnimationLibrary
 
     public struct AnimElement
     {
-        public int symbol;
-        public int frame;
-        public int folder;
+        public int image;
+        public int index;
+        public int layer;
         public int flags;
 
         public float a;
@@ -106,7 +106,7 @@ namespace AnimationLibrary
         public float m5;
         public float m6;
 
-        public float space;
+        public float order;
     }
 
     #endregion
@@ -308,17 +308,17 @@ namespace AnimationLibrary
             CheckHeader("ANIM", animReader);
             AnimData = new Anim
             {
-                version = animReader.ReadInt32(),
-                space1 = animReader.ReadInt32(),
-                space2 = animReader.ReadInt32(),
-                symbols = animReader.ReadInt32(),
+                version = animReader.ReadInt32(),                                   //版本号
+                elements = animReader.ReadInt32(),                                  //
+                frames = animReader.ReadInt32(),                                    //
+                anims = animReader.ReadInt32(),                                     //
 
-                symbolsList = new List<AnimSymbol>(),
+                animList = new List<AnimBank>(),
             };
 
-            for (int i = 0; i < AnimData.symbols; i++)
+            for (int i = 0; i < AnimData.anims; i++)
             {
-                AnimSymbol symbol = new AnimSymbol
+                AnimBank anim = new AnimBank
                 {
                     name = ReadKleiString(animReader),                              //动画名
                     hash = animReader.ReadInt32(),                                  //
@@ -328,14 +328,14 @@ namespace AnimationLibrary
                     framesList = new List<AnimFrame>(),
                 };
 
-                for (int j = 0; j < symbol.frames; j++)
+                for (int j = 0; j < anim.frames; j++)
                 {
                     AnimFrame frame = new AnimFrame
                     {
-                        num3 = animReader.ReadSingle(),
-                        num4 = animReader.ReadSingle(),
-                        num5 = animReader.ReadSingle(),
-                        num6 = animReader.ReadSingle(),
+                        num3 = animReader.ReadSingle(),                             //X
+                        num4 = animReader.ReadSingle(),                             //Y
+                        num5 = animReader.ReadSingle(),                             //W
+                        num6 = animReader.ReadSingle(),                             //H
 
                         elements = animReader.ReadInt32(),
 
@@ -346,9 +346,9 @@ namespace AnimationLibrary
                     {
                         AnimElement element = new AnimElement
                         {
-                            symbol = animReader.ReadInt32(),
-                            frame = animReader.ReadInt32(),
-                            folder = animReader.ReadInt32(),
+                            image = animReader.ReadInt32(),
+                            index = animReader.ReadInt32(),
+                            layer = animReader.ReadInt32(),
                             flags = animReader.ReadInt32(),
 
                             a = animReader.ReadSingle(),
@@ -363,14 +363,13 @@ namespace AnimationLibrary
                             m5 = animReader.ReadSingle(),
                             m6 = animReader.ReadSingle(),
 
-
-                            space = animReader.ReadSingle(),
+                            order = animReader.ReadSingle(),
                         };
                         frame.elementsList.Add(element);
                     }
-                    symbol.framesList.Add(frame);
+                    anim.framesList.Add(frame);
                 }
-                AnimData.symbolsList.Add(symbol);
+                AnimData.animList.Add(anim);
             }
             int maxVisSymbolFrames = animReader.ReadInt32();
             AnimHash = ParseHashTable(animReader);
@@ -378,53 +377,83 @@ namespace AnimationLibrary
 
         public void ParseAnimDataTable()
         {
-            animTable.Columns.Add("anim", typeof(Anim));
-            animTable.Columns.Add("name", typeof(string));
-            animTable.Columns.Add("hashname", typeof(string));
-            //animTable.Columns.Add("index", typeof(float), "");
-            //animTable.Columns.Add("hash", typeof(int), "");
-            animTable.Columns.Add("num3", typeof(float));
-            animTable.Columns.Add("num4", typeof(float));
-            animTable.Columns.Add("num5", typeof(float));
-            animTable.Columns.Add("num6", typeof(float));
-            //animTable.Columns.Add("w", typeof(float));
-            //animTable.Columns.Add("h", typeof(float));
-            animTable.Columns.Add("elemnetHashSymbol", typeof(string));
-            animTable.Columns.Add("elemnetFrame", typeof(int));
-            animTable.Columns.Add("elemnetHashFolder", typeof(string));
-            animTable.Columns.Add("elemnetFlags", typeof(int));
+            animTable.Columns.Add("ANIM_Name", typeof(string));                     //
+            animTable.Columns.Add("ANIM_Hash", typeof(string));                     //
+            animTable.Columns.Add("ANIM_Rate", typeof(float));                      //
 
-            animTable.Columns.Add("m1", typeof(float));
-            animTable.Columns.Add("m2", typeof(float));
-            animTable.Columns.Add("m3", typeof(float));
-            animTable.Columns.Add("m4", typeof(float));
-            animTable.Columns.Add("m5", typeof(float));
-            animTable.Columns.Add("m6", typeof(float));
+            //
+            animTable.Columns.Add("FRAM_Num3", typeof(float));                      //
+            animTable.Columns.Add("FRAM_Num4", typeof(float));                      //
+            animTable.Columns.Add("FRAM_Num5", typeof(float));                      //
+            animTable.Columns.Add("FRAM_Num6", typeof(float));                      //
 
-            foreach (var symbol in AnimData.symbolsList)
+            //场景物体的文件和标志信息,用于区分使用了哪个文件以及文件在场景中复用的后缀
+            animTable.Columns.Add("ELEM_Image", typeof(string));                    //文件名
+            animTable.Columns.Add("ELEM_Layer", typeof(string));                    //文件复用图层后缀(一个文件可以在场景中引用多次,每个引用的名字不同)
+            animTable.Columns.Add("image", typeof(int));                            //文件名Hash数值
+            animTable.Columns.Add("index", typeof(int));                            //文件名后缀编号
+            animTable.Columns.Add("layer", typeof(int));                            //文件图层Hash数值
+            animTable.Columns.Add("flags", typeof(int));                            //文件标记(总是0)
+
+            //场景中每个物体的额外信息,用于计算动画主线和物体时间线
+            animTable.Columns.Add("idanim", typeof(int));                           //所在动画Bank
+            animTable.Columns.Add("idframe", typeof(int));                          //所在动画主线的关键帧位置
+            animTable.Columns.Add("idelement", typeof(int));                        //所在动画主线的关键帧中的排序
+            animTable.Columns.Add("timeline", typeof(int));                         //所在时间线
+            animTable.Columns.Add("line_key", typeof(int));                         //所在时间线中的关键帧的位置
+
+            //
+            animTable.Columns.Add("m1", typeof(float));                             //
+            animTable.Columns.Add("m2", typeof(float));                             //
+            animTable.Columns.Add("m3", typeof(float));                             //
+            animTable.Columns.Add("m4", typeof(float));                             //
+            animTable.Columns.Add("m5", typeof(float));                             //
+            animTable.Columns.Add("m6", typeof(float));                             //
+
+            animTable.Columns.Add("order", typeof(float));                          //文件关键帧排序(总为0,无效)
+
+            int idanim = 0;
+            foreach (var anim in AnimData.animList)
             {
-                foreach (var frame in symbol.framesList)
+                int idframe = 0;
+                Dictionary<string, int> timelines = new Dictionary<string, int>(); //每个动画建立一组时间线
+                foreach (var frame in anim.framesList)
                 {
+                    int idelement = 0;
                     foreach (var element in frame.elementsList)
                     {
-                        animTable.Rows.Add(AnimData,
-                            symbol.name, AnimHash[symbol.hash],
-                            frame.num3, frame.num4, frame.num5, frame.num6,
-                            AnimHash[element.symbol], element.frame, AnimHash[element.folder], element.flags,
-                            element.m1, element.m2, element.m3, element.m4, element.m5, element.m6
-                            );
+                        int timelineid = 0;
+
+                        string timeline = element.image + "_" + element.index + "_" + element.layer; //用这三个数据来区分是否属于一个时间线
+                        if (!timelines.ContainsKey(timeline)) { timelines.Add(timeline, 0); }
+                        else { timelines[timeline]++; }
+
+                        List<string> timelinesKeys = new List<string>();
+                        foreach (var item in timelines.Keys) { timelinesKeys.Add(item); }//获取时间线的ID表
+                        for (int lineid = 0; lineid < timelinesKeys.Count; lineid++)
+                        {
+                            if (timelinesKeys[lineid] == timeline)
+                            {
+                                timelineid = lineid;
+                                break;
+                            }
+                        }
+
+                        animTable.Rows.Add(
+                           anim.name, AnimHash[anim.hash], anim.rate,
+                           frame.num3, frame.num4, frame.num5, frame.num6,
+                           AnimHash[element.image], AnimHash[element.layer],
+                           element.image, element.index, element.layer, element.flags,
+                           idanim, idframe, idelement,
+                           timelineid, timelines[timelinesKeys[timelineid]],
+                           element.m1, element.m2, element.m3, element.m4, element.m5, element.m6, element.order
+                           );
+                        idelement++;
                     }
+                    idframe++;
                 }
+                idanim++;
             }
-            //foreach (var element in AnimData.symbolsList[1].framesList[1].elementsList)
-            //{
-            //    animTable.Rows.Add(AnimData,
-            //        AnimData.symbolsList[1].name, AnimHash[AnimData.symbolsList[1].hash],
-            //        AnimData.symbolsList[1].framesList[1].num3, AnimData.symbolsList[1].framesList[1].num4, AnimData.symbolsList[1].framesList[1].num5, AnimData.symbolsList[1].framesList[1].num6,
-            //        AnimHash[element.symbol], element.frame, AnimHash[element.folder], element.flags,
-            //        element.m1, element.m2, element.m3, element.m4, element.m5, element.m6
-            //        );
-            //}
         }
     }
     #endregion
