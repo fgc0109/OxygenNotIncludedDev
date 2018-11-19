@@ -107,6 +107,7 @@ namespace AnimationLibrary
         public float m6;
 
         public float order;
+        public float repeat;//额外添加 用于区分物体在场景中复用而没有区分的情况
     }
 
     #endregion
@@ -364,6 +365,7 @@ namespace AnimationLibrary
                             m6 = animReader.ReadSingle(),
 
                             order = animReader.ReadSingle(),
+                            repeat = 0,
                         };
                         frame.elementsList.Add(element);
                     }
@@ -411,22 +413,78 @@ namespace AnimationLibrary
             animTable.Columns.Add("m6", typeof(float));                             //
 
             animTable.Columns.Add("order", typeof(float));                          //文件关键帧排序(总为0,无效)
+            animTable.Columns.Add("repeat", typeof(float));                         //额外添加
 
             int idanim = 0;
             foreach (var anim in AnimData.animList)
             {
+                //if (idanim != 4)
+                //{
+                //    idanim++;
+                //    continue;
+                //}
+
                 int idframe = 0;
                 Dictionary<string, int> timelines = new Dictionary<string, int>(); //每个动画建立一组时间线
                 foreach (var frame in anim.framesList)
                 {
-                    int idelement = 0;
-                    foreach (var element in frame.elementsList)
+                    for (int idelement = 0; idelement < frame.elements; idelement++)
                     {
+                        var element = AnimData.animList[idanim].framesList[idframe].elementsList[idelement];
+
                         int timelineid = 0;
 
                         string timeline = element.image + "_" + element.index + "_" + element.layer; //用这三个数据来区分是否属于一个时间线
-                        if (!timelines.ContainsKey(timeline)) { timelines.Add(timeline, 0); }
-                        else { timelines[timeline]++; }
+                        if (!timelines.ContainsKey(timeline))
+                        {
+                            timelines.Add(timeline, 0);
+                        }
+                        else
+                        {
+                            //同一帧添加两个相同的时间线是不可能的,表明这两个时间线的数据没有区分
+                            if (timelines[timeline] >= idframe)
+                            {
+                                for (int special = 0; special < frame.elements * idframe + 1; special++)
+                                {
+                                    string timeline_special = timeline + "_" + special.ToString();
+
+                                    if (timelines.ContainsKey(timeline_special) && timelines[timeline_special] >= idframe)
+                                    {
+                                        continue;
+                                    }
+                                    else if (timelines.ContainsKey(timeline_special))
+                                    {
+                                        timeline = timeline_special;
+                                        timelines[timeline]++;
+
+                                        element.repeat = special + 1;
+                                        var ELEMENT = AnimData.animList[idanim].framesList[idframe].elementsList[idelement];
+                                        ELEMENT.repeat = special + 1;
+                                        AnimData.animList[idanim].framesList[idframe].elementsList[idelement] = ELEMENT;
+
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        timeline = timeline_special;
+                                        timelines.Add(timeline, 0);
+
+                                        element.repeat = special + 1;
+                                        var ELEMENT = AnimData.animList[idanim].framesList[idframe].elementsList[idelement];
+                                        ELEMENT.repeat = special + 1;
+                                        AnimData.animList[idanim].framesList[idframe].elementsList[idelement] = ELEMENT;
+
+                                        break;
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                timelines[timeline]++;
+
+                            }
+                        }
 
                         List<string> timelinesKeys = new List<string>();
                         foreach (var item in timelines.Keys) { timelinesKeys.Add(item); }//获取时间线的ID表
@@ -446,11 +504,16 @@ namespace AnimationLibrary
                            element.image, element.index, element.layer, element.flags,
                            idanim, idframe, idelement,
                            timelineid, timelines[timelinesKeys[timelineid]],
-                           element.m1, element.m2, element.m3, element.m4, element.m5, element.m6, element.order
+                           element.m1, element.m2, element.m3, element.m4, element.m5, element.m6, element.order, element.repeat
                            );
-                        idelement++;
                     }
                     idframe++;
+                }
+
+                if (true)
+                {
+                    //Math.Max()
+                    //timelines.Count
                 }
                 idanim++;
             }

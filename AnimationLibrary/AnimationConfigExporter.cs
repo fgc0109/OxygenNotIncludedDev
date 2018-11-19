@@ -162,7 +162,7 @@ namespace AnimationLibrary
             {
                 foreach (var element in frame.elementsList)
                 {
-                    string temp = element.image + "_" + element.index + "_" + element.layer;
+                    string temp = element.image + "_" + element.index + "_" + element.layer + "_" + element.repeat;
                     if (!timelines.ContainsKey(temp))
                     {
                         timelines.Add(temp, element);
@@ -197,13 +197,20 @@ namespace AnimationLibrary
                 //从每一帧查找看有没有这个物体,有的话在时间线里面加入这个物体的数据
                 for (int frame = 0; frame < anim.frames; frame++)
                 {
+
+                    if (animIndex == 4 && line == 9)
+                    {
+                        int aaaa = 0;
+                    }
+
                     if (!fileNameIndex.ContainsKey(file)) { continue; }
                     if (anim.framesList[frame].elements == 0) { continue; }
 
                     var obj = anim.framesList[frame].elementsList.FirstOrDefault(ele =>
                         ele.layer == timelines[timelinesKeys[line]].layer &&
                         ele.index == timelines[timelinesKeys[line]].index &&
-                        ele.image == timelines[timelinesKeys[line]].image
+                        ele.image == timelines[timelinesKeys[line]].image &&
+                        ele.repeat == timelines[timelinesKeys[line]].repeat
                         );
                     if (obj.image == 0) { continue; }
 
@@ -214,7 +221,8 @@ namespace AnimationLibrary
                        "idframe = '" + frame + "' and " +
                        "image = '" + obj.image + "' and " +
                        "index = '" + obj.index + "' and " +
-                       "layer = '" + obj.layer + "'")[0];
+                       "layer = '" + obj.layer + "' and " +
+                       "repeat = '" + obj.repeat + "'")[0];
                     int line_key = (int)dataline["line_key"];
                     int time = (int)dataline["idframe"] * (int)rate;
 
@@ -251,6 +259,7 @@ namespace AnimationLibrary
 
                     XmlElement object_def = scml.CreateElement("object");
                     object_def.SetAttribute("folder", "0");
+                    //object_def.SetAttribute("file", file);
                     object_def.SetAttribute("file", fileNameIndex[file]);
                     object_def.SetAttribute("x", (+obj.m5 * 0.5).ToString());
                     object_def.SetAttribute("y", (-obj.m6 * 0.5).ToString());
