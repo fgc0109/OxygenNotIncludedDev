@@ -15,7 +15,7 @@ namespace AnimationConverter
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AnimationConverter());
+            Application.Run(new AnimationDataViewer());
         }
     }
 }

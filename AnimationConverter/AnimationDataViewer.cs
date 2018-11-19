@@ -11,9 +11,9 @@ using AnimationLibrary;
 
 namespace AnimationConverter
 {
-    public partial class AnimationConverter : Form
+    public partial class AnimationDataViewer : Form
     {
-        public AnimationConverter()
+        public AnimationDataViewer()
         {
             InitializeComponent();
         }
