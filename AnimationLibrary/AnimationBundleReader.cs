@@ -404,7 +404,7 @@ namespace AnimationLibrary
             animTable.Columns.Add("timeline", typeof(int));                         //所在时间线
             animTable.Columns.Add("line_key", typeof(int));                         //所在时间线中的关键帧的位置
 
-            //
+            //场景物体位置旋转信息矩阵
             animTable.Columns.Add("m1", typeof(float));                             //
             animTable.Columns.Add("m2", typeof(float));                             //
             animTable.Columns.Add("m3", typeof(float));                             //
