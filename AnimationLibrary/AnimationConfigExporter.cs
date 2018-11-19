@@ -215,11 +215,6 @@ namespace AnimationLibrary
                     int line_key = (int)dataline["line_key"];
                     int time = (int)dataline["idframe"] * (int)rate;
 
-                    if (line_key == 0)
-                    {
-                        isFirst = true;
-                    }
-
                     double scale_x = Math.Sqrt(obj.m1 * obj.m1 + obj.m2 * obj.m2);
                     double scale_y = Math.Sqrt(obj.m3 * obj.m3 + obj.m4 * obj.m4);
 
