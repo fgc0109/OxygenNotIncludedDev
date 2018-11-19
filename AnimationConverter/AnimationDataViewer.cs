@@ -20,9 +20,9 @@ namespace AnimationConverter
 
         DataSet dataset = null;
         AnimationBundleReader bundles = null;
-        static string file = @"D:\GitLab\OxygenNotIncludedMOD\OxygenNotIncludedDev\AnimationConverter\test\rockrefinery_0.png";
-        static string path = file.Remove(file.LastIndexOf('_'));
-        static string name = file.Substring(file.LastIndexOf("\\") + 1, (file.LastIndexOf(".") - file.LastIndexOf("\\") - 1));
+        string file = "";
+        string path = "";
+        string name = "";
 
         /// <summary>
         /// 导出图片
@@ -44,6 +44,11 @@ namespace AnimationConverter
 
         private void button1_Click(object sender, EventArgs e)
         {
+            file = textBoxPath.Text + textBoxFile.Text;
+            path = file.Remove(file.LastIndexOf('_'));
+            name = file.Substring(file.LastIndexOf("\\") + 1, (file.LastIndexOf(".") - file.LastIndexOf("\\") - 1));
+            name = file.Substring(file.LastIndexOf("/") + 1, (file.LastIndexOf(".") - file.LastIndexOf("/") - 1));
+
             Image source = Image.FromFile(file);
 
             bundles = new AnimationBundleReader();
