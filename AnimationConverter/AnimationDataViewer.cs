@@ -46,8 +46,8 @@ namespace AnimationConverter
         {
             file = textBoxPath.Text + textBoxFile.Text;
             path = file.Remove(file.LastIndexOf('_'));
-            name = file.Substring(file.LastIndexOf("\\") + 1, (file.LastIndexOf(".") - file.LastIndexOf("\\") - 1));
-            name = file.Substring(file.LastIndexOf("/") + 1, (file.LastIndexOf(".") - file.LastIndexOf("/") - 1));
+            name = file.Replace("/", "\\");
+            name = name.Substring(name.LastIndexOf("\\") + 1, (name.LastIndexOf(".") - name.LastIndexOf("\\") - 1));
 
             Image source = Image.FromFile(file);
 
