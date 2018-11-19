@@ -191,18 +191,9 @@ namespace AnimationLibrary
                 double lastangle = 0;
 
                 float rate = anim.rate;
-                int current = 0;
-                bool insertline = false;
-
                 //从每一帧查找看有没有这个物体,有的话在时间线里面加入这个物体的数据
                 for (int frame = 0; frame < anim.frames; frame++)
                 {
-
-                    if (animIndex == 4 && line == 9)
-                    {
-                        int aaaa = 0;
-                    }
-
                     if (!fileNameIndex.ContainsKey(file)) { continue; }
                     if (anim.framesList[frame].elements == 0) { continue; }
 
@@ -213,8 +204,6 @@ namespace AnimationLibrary
                         ele.repeat == timelines[timelinesKeys[line]].repeat
                         );
                     if (obj.image == 0) { continue; }
-
-                    insertline = true;
 
                     var dataline = animTable.Select(
                        "idanim = '" + animIndex + "' and " +
@@ -259,7 +248,6 @@ namespace AnimationLibrary
 
                     XmlElement object_def = scml.CreateElement("object");
                     object_def.SetAttribute("folder", "0");
-                    //object_def.SetAttribute("file", file);
                     object_def.SetAttribute("file", fileNameIndex[file]);
                     object_def.SetAttribute("x", (+obj.m5 * 0.5).ToString());
                     object_def.SetAttribute("y", (-obj.m6 * 0.5).ToString());
@@ -270,11 +258,8 @@ namespace AnimationLibrary
                     key.AppendChild(object_def);
 
                     timeline.AppendChild(key);
-
-                    current++;
                 }
-
-                if (insertline) { parent.AppendChild(timeline); }
+                parent.AppendChild(timeline);
             }
         }
     }
