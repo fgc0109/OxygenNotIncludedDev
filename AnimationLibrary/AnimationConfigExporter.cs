@@ -187,7 +187,7 @@ namespace AnimationLibrary
                 timeline.SetAttribute("id", line.ToString());
                 timeline.SetAttribute("name", line + "_" + file);
 
-                bool isFirst = true;
+                bool isFirst = false;
                 double lastangle = 0;
 
                 float rate = anim.rate;
@@ -209,6 +209,20 @@ namespace AnimationLibrary
 
                     insertline = true;
 
+                    var dataline = animTable.Select(
+                       "idanim = '" + animIndex + "' and " +
+                       "idframe = '" + frame + "' and " +
+                       "image = '" + obj.image + "' and " +
+                       "index = '" + obj.index + "' and " +
+                       "layer = '" + obj.layer + "'")[0];
+                    int line_key = (int)dataline["line_key"];
+                    int time = (int)dataline["idframe"] * (int)rate;
+
+                    if (line_key == 0)
+                    {
+                        isFirst = true;
+                    }
+
                     double scale_x = Math.Sqrt(obj.m1 * obj.m1 + obj.m2 * obj.m2);
                     double scale_y = Math.Sqrt(obj.m3 * obj.m3 + obj.m4 * obj.m4);
 
@@ -229,15 +243,6 @@ namespace AnimationLibrary
                     if (angle < 0) { angle += 2 * Math.PI; }
                     angle *= 180 / Math.PI;
                     lastangle = angle;
-
-                    var dataline = animTable.Select(
-                       "idanim = '" + animIndex + "' and " +
-                       "idframe = '" + frame + "' and " +
-                       "image = '" + obj.image + "' and " +
-                       "index = '" + obj.index + "' and " +
-                       "layer = '" + obj.layer + "'")[0];
-                    int line_key = (int)dataline["line_key"];
-                    int time = (int)dataline["idframe"] * (int)rate;
 
                     XmlElement key = scml.CreateElement("key");
                     key.SetAttribute("id", line_key.ToString());
