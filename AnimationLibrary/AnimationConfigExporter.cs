@@ -66,7 +66,11 @@ namespace AnimationLibrary
                 fileNameIndex = new Dictionary<string, string>();
                 for (int fileIndex = 0; fileIndex < bundleData.BildData.frames; fileIndex++)
                 {
-                    fileNameIndex.Add(bildTable.Rows[fileIndex]["name"] + "_" + bildTable.Rows[fileIndex]["index"], fileIndex.ToString());
+                    string key = bildTable.Rows[fileIndex]["name"] + "_" + bildTable.Rows[fileIndex]["index"];
+                    if (fileNameIndex.ContainsKey(key))                    {
+                        key = key + "_" + fileIndex;
+                    }
+                    fileNameIndex.Add(key, fileIndex.ToString());
 
                     float x = (float)bildTable.Rows[fileIndex]["num6"] - (float)bildTable.Rows[fileIndex]["num8"] / 2;
                     float y = (float)bildTable.Rows[fileIndex]["num7"] - (float)bildTable.Rows[fileIndex]["num9"] / 2;
