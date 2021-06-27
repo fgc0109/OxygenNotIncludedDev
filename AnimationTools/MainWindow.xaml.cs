@@ -196,13 +196,29 @@ namespace AnimationTools
         {
             bundles = new AnimationBundleReader();
             file = ListBoxFileList.SelectedItem.ToString();
-            path = file.Remove(file.LastIndexOf('_'));
+            try
+            {
+                path = file.Remove(file.LastIndexOf('_'));
+            }
+            catch (System.ArgumentOutOfRangeException)
+            {
+                mVariableData.TipContents = "解包" + name + "失败：图片文件名格式错误";
+                return;
+            }
             name = file.Replace("/", "\\");
             name = name.Substring(name.LastIndexOf("\\") + 1, (name.LastIndexOf(".") - name.LastIndexOf("\\") - 1));
             Directory.CreateDirectory(path);
 
             System.Drawing.Image source = System.Drawing.Image.FromFile(file);
-            dataset = bundles.ReadFile(path, source.Width, source.Height);
+            try
+            {
+                dataset = bundles.ReadFile(path, source.Width, source.Height);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                mVariableData.TipContents = "解包" + name + "失败：找不到对应 build/anim 文件";
+                return;
+            }
             //dataGridView1.DataSource = ds.Tables["animTable"];
 
             ExportTexture();
