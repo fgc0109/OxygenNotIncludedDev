@@ -175,6 +175,19 @@ namespace AnimationLibrary
             return hashTable;
         }
 
+        private void tryOpenStream(string bild_file, string anim_file)
+        {
+            try
+            {
+                if (bildStream == null)
+                    bildStream = new FileStream(bild_file, FileMode.Open);
+                if (animStream == null)
+                    animStream = new FileStream(anim_file, FileMode.Open);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+            }
+        }
         public DataSet ReadFile(string path, int winth, int height)
         {
             DataSet data = new DataSet();
@@ -188,8 +201,17 @@ namespace AnimationLibrary
             animTable = new DataTable();
             animTable.TableName = nameof(animTable);
 
-            bildStream = new FileStream(path + "_build.txt", FileMode.Open);
-            animStream = new FileStream(path + "_anim.txt", FileMode.Open);
+            // open bildStream and animStream
+            string fileNamePrefix = Path.GetFileName(path);
+            string dirName = Path.GetDirectoryName(path);
+            string parentDirName = Path.GetDirectoryName(dirName);
+            string textAssetDir = Path.Combine(parentDirName, "TextAsset");
+            string textAssetPrefix = Path.Combine(textAssetDir, fileNamePrefix);
+            tryOpenStream(path + "_build.txt", path + "_anim.txt");
+            tryOpenStream(path + "_build.prefab", path + "_anim.prefab");
+            tryOpenStream(textAssetPrefix + "_build.txt", textAssetPrefix + "_anim.txt");
+            tryOpenStream(textAssetPrefix + "_build.prefab", textAssetPrefix + "_anim.prefab");
+            if (bildStream == null || animStream == null) throw new System.IO.FileNotFoundException("No build or anim file.");
 
             bildReader = new BinaryReader(bildStream, Encoding.UTF8);
             animReader = new BinaryReader(animStream, Encoding.UTF8);
